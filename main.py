@@ -72,6 +72,7 @@ async def main():
                 myobject1_type_nodeid = ua.NodeId.from_string(nodeId)
                 print(myobject1_type_nodeid)
                 nodeId = 'ns='+str(idx)+';i=20'+str(i)
+                
                 await client.nodes.objects.add_object(ua.NodeId.from_string(nodeId), "MyCustomObject"+str(i), myobject1_type_nodeid)
                 print("aded")
                 await asyncio.sleep(5)

@@ -1,0 +1,25 @@
+###########################
+# UaModeler Project File  #
+# Generated at 03.05.2022 #
+###########################
+
+PROJECTNAME = Spaltmessung
+
+TEMPLATESET = ($TEMPLATES)/modeling/v1_0/t0/modeling.tt2set
+
+MODELS += ($MODELS)/Opc.Ua.NodeSet2.ua \
+    spaltmessung.ua
+
+COLORS = ($MODELS)/Opc.Ua.NodeSet2.ua: #0000ff\
+    spaltmessung.ua: #008000
+
+OUTPUTPATH = ../Python/companion1
+
+GENERATE += spaltmessung.ua
+
+NODEACCESSINFOROLES += Administrator \
+    SecurityAdmin \
+    ConfigurationAdmin \
+    Operator \
+    Observer
+
