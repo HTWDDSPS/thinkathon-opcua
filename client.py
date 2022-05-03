@@ -35,7 +35,8 @@ async def main():
             #print(id)
             try:
                 node = client.get_node(ua.NodeId.from_string(id))
-                await node.write_value(js[-1])
+                await node.write_value(float(js[-1].replace(',', '.')))
+                
             except Exception:
                 print(Exception, id)
         # print(var)

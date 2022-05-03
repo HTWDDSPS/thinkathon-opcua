@@ -1,85 +1,41 @@
-'''
-   Show 3 different examples for creating an object:
-   1) create a basic object
-   2) create a new object type and a instance of the new object type
-   3) import a new object from xml address space and create a instance of the new object type
-'''
-import sys
-sys.path.insert(0, "..")
 import asyncio
+import sys, json
+# sys.path.insert(0, "..")
+import logging
+from asyncua import Client, Node, ua
 
-import asyncua
+logging.basicConfig(level=logging.INFO)
+_logger = logging.getLogger('asyncua')
 
-from asyncua import ua, Server, Client
 
 
 async def main():
+ 
+        
+        
+    url = 'opc.tcp://127.0.0.1:4840/freeopcua/server/'
+    # url = 'opc.tcp://commsvr.com:51234/UA/CAS_UA_Server'
+    async with Client(url=url) as client:
+        # Client has a few methods to get proxy to UA nodes that should always be in address space such as Root or Objects
+        # Node objects have methods to read and write node attributes as well as browse or populate address space
+        _logger.info('Children of root are: %r', await client.nodes.root.get_children())
 
-    # setup our server
-    server = Server()
-    await server.init()
-
-    server.set_endpoint("opc.tcp://0.0.0.0:4840/freeopcua/server/")
-
-    # setup our own namespace, not really necessary but should as spec
-    uri = "http://examples.freeopcua.github.io"
-    idx = await server.register_namespace(uri)
-
-    # Example 1 - create a basic object
-    #-------------------------------------------------------------------------------
-    myobj = await server.nodes.objects.add_object(idx, "MyObject")
-    #-------------------------------------------------------------------------------
-
-    # Example 2 - create a new object type and a instance of the new object type
-    #-------------------------------------------------------------------------------
-    mycustomobj_type = await server.nodes.base_object_type.add_object_type(idx, "MyCustomObjectType")
-    var = await mycustomobj_type.add_variable(0, "var_should_be_there_after_instantiate", 1.0)  # demonstrates instantiate
-    await var.set_modelling_rule(True)  # make sure the variable is instansiated
-
-    myobj = await server.nodes.objects.add_object(idx, "MyCustomObjectA", mycustomobj_type.nodeid)
-    #-------------------------------------------------------------------------------
-
-    # Example 3 - import a new object from xml address space and create a instance of the new object type
-    #-------------------------------------------------------------------------------
-    # Import customobject type
-    #await server.import_xml('customobject.xml')
-
-    # get nodeid of custom object type by one of the following 2 ways:
-    # 1) Use node ID
-    # 3) Or As child from BaseObjectType
-    #myobject1_type_nodeid = ua.NodeId.from_string('ns=%d;i=2' % idx)
-    #print(myobject1_type_nodeid)
-    #myobject2_type_nodeid = (await server.nodes.base_object_type.get_child([f"{idx}:MyCustomObjectType"])).nodeid
-
-    # populating our address space
-    #myobj = await server.nodes.objects.add_object(idx, "MyCustomObjectB", myobject2_type_nodeid)
-    #print(await myobj.get_children())
-    #-------------------------------------------------------------------------------
-    
-    # starting!
-    imported = False
-    async with server:
-        i = 0
+        uri = 'http://examples.freeopcua.github.io'
+        idx = await client.get_namespace_index(uri)
+        # get a specific node knowing its node id
+        # var = client.get_node(ua.NodeId(1002, 2))
+        # var = client.get_node("ns=3;i=2002")
+        i = 0.0
         while True:
-            await asyncio.sleep(5)
-            async with Client(url="opc.tcp://admin@127.0.0.1:4840/freeopcua/server/") as client:
-                print("add")
-                # adding an object from "marketplace"
-                if(imported == False):
-                    await client.import_xml('customobject.xml')
-                    imported = True
-                nodeId = 'ns='+str(idx)+';i=2'
-                myobject1_type_nodeid = ua.NodeId.from_string(nodeId)
-                print(myobject1_type_nodeid)
-                nodeId = 'ns='+str(idx)+';i=20'+str(i)
-                
-                await client.nodes.objects.add_object(ua.NodeId.from_string(nodeId), "MyCustomObject"+str(i), myobject1_type_nodeid)
-                print("aded")
-                await asyncio.sleep(5)
-            i = i + 1
+            node =  client.get_node(ua.NodeId.from_string('ns=2;s=ALSAA0357_O_AA.Wirkrichtung.Gap.A'))
+            await node.set_value(i)
+            i = i + 0.32
+            await asyncio.sleep(1)
+        # print(var)
+        # await var.read_data_value() # get value of node as a DataValue object
+        # await var.read_value() # get value of node as a python builtin
+        # await var.write_value(ua.Variant([23], ua.VariantType.Int64)) #set node value using explicit data type
+        # await var.write_value(3.9) # set node value using implicit data type
 
-
-
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     asyncio.run(main())
