@@ -42,30 +42,37 @@ async def main():
     # Example 3 - import a new object from xml address space and create a instance of the new object type
     #-------------------------------------------------------------------------------
     # Import customobject type
-    await server.import_xml('customobject.xml')
+    #await server.import_xml('customobject.xml')
 
     # get nodeid of custom object type by one of the following 2 ways:
     # 1) Use node ID
     # 3) Or As child from BaseObjectType
-    myobject1_type_nodeid = ua.NodeId.from_string('ns=%d;i=2' % idx)
-    print(myobject1_type_nodeid)
-    myobject2_type_nodeid = (await server.nodes.base_object_type.get_child([f"{idx}:MyCustomObjectType"])).nodeid
+    #myobject1_type_nodeid = ua.NodeId.from_string('ns=%d;i=2' % idx)
+    #print(myobject1_type_nodeid)
+    #myobject2_type_nodeid = (await server.nodes.base_object_type.get_child([f"{idx}:MyCustomObjectType"])).nodeid
 
     # populating our address space
-    myobj = await server.nodes.objects.add_object(idx, "MyCustomObjectB", myobject2_type_nodeid)
-    print(await myobj.get_children())
+    #myobj = await server.nodes.objects.add_object(idx, "MyCustomObjectB", myobject2_type_nodeid)
+    #print(await myobj.get_children())
     #-------------------------------------------------------------------------------
     
     # starting!
+    imported = False
     async with server:
         i = 0
         while True:
             await asyncio.sleep(5)
             async with Client(url="opc.tcp://admin@127.0.0.1:4840/freeopcua/server/") as client:
                 print("add")
-                #await client.import_xml('customobject.xml')
+                # adding an object from "marketplace"
+                if(imported == False):
+                    await client.import_xml('customobject.xml')
+                    imported = True
+                nodeId = 'ns='+str(idx)+';i=2'
+                myobject1_type_nodeid = ua.NodeId.from_string(nodeId)
+                print(myobject1_type_nodeid)
                 nodeId = 'ns='+str(idx)+';i=20'+str(i)
-                await client.nodes.objects.add_object(ua.NodeId.from_string(nodeId), "MyCustomObject"+str(i), myobject2_type_nodeid)
+                await client.nodes.objects.add_object(ua.NodeId.from_string(nodeId), "MyCustomObject"+str(i), myobject1_type_nodeid)
                 print("aded")
                 await asyncio.sleep(5)
             i = i + 1
