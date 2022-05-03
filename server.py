@@ -26,6 +26,12 @@ async def main():
     idx = await server.register_namespace(uri)
 
     await server.import_xml('./models/spaltmessung.xml')
+    print(await server.get_namespace_array())
+    nodeId = 'ns=3;i=1002'
+    nodeIdrollo = 'ns='+str(idx)+';i=201'
+    messpunktId = ua.NodeId.from_string(nodeId)
+    
+    await server.nodes.objects.add_object(ua.NodeId.from_string(nodeIdrollo), "Sonnenrollo", messpunktId)
     # starting!
     imported = False
     async with server:
