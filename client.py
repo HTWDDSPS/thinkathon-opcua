@@ -3,16 +3,14 @@ import sys, json
 # sys.path.insert(0, "..")
 import logging
 from asyncua import Client, Node, ua
-
+from domain.parser import parse
 logging.basicConfig(level=logging.INFO)
 _logger = logging.getLogger('asyncua')
 
 
 
 async def main():
-    js = {}
-    with open('./dump.json') as f:
-        jso = json.load(f)
+
         
         
     url = 'opc.tcp://admin@127.0.0.1:4840/freeopcua/server/'
@@ -24,6 +22,8 @@ async def main():
 
         uri = 'http://examples.freeopcua.github.io'
         idx = await client.get_namespace_index(uri)
+
+        jso = (parse('./test.csv'))
         # get a specific node knowing its node id
         # var = client.get_node(ua.NodeId(1002, 2))
         # var = client.get_node("ns=3;i=2002")
@@ -38,7 +38,7 @@ async def main():
                 await node.write_value(float(js[-1].replace(',', '.')))
                 
             except Exception:
-                print(Exception, id)
+                pass#print(Exception, id)
         # print(var)
         # await var.read_data_value() # get value of node as a DataValue object
         # await var.read_value() # get value of node as a python builtin

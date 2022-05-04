@@ -9,6 +9,7 @@ import sys
 from numpy import array
 sys.path.insert(0, "..")
 import asyncio, json
+from domain.parser import parse
 
 from asyncua import ua, Server, Client
 
@@ -88,17 +89,12 @@ async def main():
         
     werte = js[15:-2]
     
-    #ns=2;s=ALSAA0357_O_AA.Wirkrichtung.Flush.A
-    #test = 'ns=2;s='+str(js[20][1])+'.Wirkrichtung.'+str(js[20][2])+'.' + str(js[20][0])
-    #print(test)
-    #node = await server.get_node(ua.NodeId.from_string(test))
-    #node.set_value(js[20][-1])
-    #add_werte(werte)
-    # starting!
+   
     imported = False
     async with server:
         i = 0
         while True:
+            
             await asyncio.sleep(5)           
          
 
